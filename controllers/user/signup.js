@@ -42,20 +42,32 @@ exports.signup = async (req, res) => {
         error: "password must contain a number",
       });
     } else {
-      const newUser = await prisma.user.create({
-        data: {
+      const existingUser = await prisma.user.findUnique({
+        where: {
           email,
-          password: bcrypt.hashSync(password, salt),
-          userRole: {
-            create: {
-              roleId: defaultRole.id,
-            },
-          },
         },
       });
-      res.status(200).json({ message: "User created" });
-    }
-  } catch (error) {
+    
+      if (existingUser) {
+        res.status(409).json({
+          error: "Cet e-mail a déjà été utilisé",
+        });
+      } else {
+        const newUser = await prisma.user.create({
+          data: {
+            email,
+            password: bcrypt.hashSync(password, salt),
+            userRole: {
+              create: {
+                roleId: defaultRole.id,
+              },
+            },
+          },
+        });
+        res.status(200).json({ message: "User created" });
+      }
+    } 
+  }catch (error) {
     res.status(500).json({
       error: "Can't create a user please verify the log of your server",
     });
