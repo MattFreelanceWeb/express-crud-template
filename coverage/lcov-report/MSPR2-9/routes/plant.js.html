@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>36/36</span>
+                <span class='fraction'>0/36</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>36/36</span>
+                <span class='fraction'>0/36</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -99,78 +99,78 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// const
-const express = require("express");
-const router = express.Router();
-&nbsp;
-// middlewares
-const authorized = require("../middleware/auth");
-&nbsp;
-// controllers
-const createPlant = require('../controllers/plant/create')
-const deletePlant = require('../controllers/plant/delete')
-const getPlantsByCoordinates = require("../controllers/plant/getAllFromCoordinates")
-const getPlants = require("../controllers/plant/getOne")
-const addGuardian = require("../controllers/plant/addGuardian")
-const removeGuardian = require("../controllers/plant/removeGuardian")
-const getPlantsForGuardian = require("../controllers/plant/getPlantsForGuardian")
-&nbsp;
-//create
-router.post("/users/:id/plants", authorized, createPlant.create);
-&nbsp;
-//read
-router.get("/by-coordinates/:lat/:lng", authorized, getPlantsByCoordinates.getAll);
-router.get("/:plantId", authorized, getPlants.getOne)
-router.get("/:userId/:addressId", authorized, getPlantsForGuardian.getAll);
-&nbsp;
-//update
-router.put("/:plantId/addGuardian", authorized, addGuardian.update); 
-router.put("/:plantId/removeGuardian", authorized, removeGuardian.update)
-&nbsp;
-//delete
-router.delete("/:id", authorized, deletePlant.delete);
-&nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
-module.exports = router;
+<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >// const</span></span></span>
+<span class="cstat-no" title="statement not covered" >const express = require("express");</span>
+<span class="cstat-no" title="statement not covered" >const router = express.Router();</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >// middlewares</span>
+<span class="cstat-no" title="statement not covered" >const authorized = require("../middleware/auth");</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >// controllers</span>
+<span class="cstat-no" title="statement not covered" >const createPlant = require('../controllers/plant/create')</span>
+<span class="cstat-no" title="statement not covered" >const deletePlant = require('../controllers/plant/delete')</span>
+<span class="cstat-no" title="statement not covered" >const getPlantsByCoordinates = require("../controllers/plant/getAllFromCoordinates")</span>
+<span class="cstat-no" title="statement not covered" >const getPlants = require("../controllers/plant/getOne")</span>
+<span class="cstat-no" title="statement not covered" >const addGuardian = require("../controllers/plant/addGuardian")</span>
+<span class="cstat-no" title="statement not covered" >const removeGuardian = require("../controllers/plant/removeGuardian")</span>
+<span class="cstat-no" title="statement not covered" >const getPlantsForGuardian = require("../controllers/plant/getPlantsForGuardian")</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >//create</span>
+<span class="cstat-no" title="statement not covered" >router.post("/users/:id/plants", authorized, createPlant.create);</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >//read</span>
+<span class="cstat-no" title="statement not covered" >router.get("/by-coordinates/:lat/:lng", authorized, getPlantsByCoordinates.getAll);</span>
+<span class="cstat-no" title="statement not covered" >router.get("/:plantId", authorized, getPlants.getOne)</span>
+<span class="cstat-no" title="statement not covered" >router.get("/:userId/:addressId", authorized, getPlantsForGuardian.getAll);</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >//update</span>
+<span class="cstat-no" title="statement not covered" >router.put("/:plantId/addGuardian", authorized, addGuardian.update); </span>
+<span class="cstat-no" title="statement not covered" >router.put("/:plantId/removeGuardian", authorized, removeGuardian.update)</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >//delete</span>
+<span class="cstat-no" title="statement not covered" >router.delete("/:id", authorized, deletePlant.delete);</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >module.exports = router;</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -178,7 +178,7 @@ module.exports = router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-03-15T13:28:37.169Z
+                at 2024-03-15T15:20:51.517Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
