@@ -20,7 +20,7 @@ exports.signup = async (req, res) => {
   });
 
   try {
-    const { email, password } = req.body;
+    const { email, password, confirmPassword } = req.body;
     if (password.length < 7) {
       res.status(412).json({
         error: "password must be minimum with 8 char",
@@ -41,6 +41,10 @@ exports.signup = async (req, res) => {
       res.status(412).json({
         error: "password must contain a number",
       });
+    } else if (password != confirmPassword) {
+      res.status(412).json({
+        error: "confirmation password doesn't match with password"
+      });
     } else {
       const existingUser = await prisma.user.findUnique({
         where: {
@@ -50,7 +54,7 @@ exports.signup = async (req, res) => {
     
       if (existingUser) {
         res.status(409).json({
-          error: "Cet e-mail a déjà été utilisé",
+          error: "The email has already been taken",
         });
       } else {
         const newUser = await prisma.user.create({
