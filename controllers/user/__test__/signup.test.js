@@ -2,7 +2,6 @@ const request = require('supertest');
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
-const { uuid } = require('uuidv4');
 const app = express();
 const prisma = new PrismaClient();
 
@@ -31,7 +30,7 @@ describe('POST /signup', () => {
 
   it('should return 412 if password is less than 8 characters', async () => {
     const response = await request(app).post('/signup').send({
-      email: `test-${uuid()}@example.com`,
+      email: `test@example.com`,
       password: 'short',
     });
     expect(response.status).toBe(412);
@@ -40,7 +39,7 @@ describe('POST /signup', () => {
 
   it('should return 412 if password does not contain an uppercase', async () => {
     const response = await request(app).post('/signup').send({
-      email: `test-${uuid()}@example.com`,
+      email: `test@example.com`,
       password: 'lowercase1!',
     });
     expect(response.status).toBe(412);
@@ -49,7 +48,7 @@ describe('POST /signup', () => {
 
   it('should return 412 if password does not contain a lowercase', async () => {
     const response = await request(app).post('/signup').send({
-      email: `test-${uuid()}@example.com`,
+      email: `test@example.com`,
       password: 'UPPERCASE1!',
     });
     expect(response.status).toBe(412);
@@ -58,7 +57,7 @@ describe('POST /signup', () => {
 
   it('should return 412 if password does not contain a special char', async () => {
     const response = await request(app).post('/signup').send({
-      email: `test-${uuid()}@example.com`,
+      email: `test@example.com`,
       password: 'Password1',
     });
     expect(response.status).toBe(412);
@@ -67,7 +66,7 @@ describe('POST /signup', () => {
 
   it('should return 412 if password does not contain a number', async () => {
     const response = await request(app).post('/signup').send({
-      email: `test-${uuid()}@example.com`,
+      email: `test@example.com`,
       password: 'Password!',
     });
     expect(response.status).toBe(412);
@@ -79,12 +78,12 @@ describe('POST /signup', () => {
     prisma.role.findUnique.mockResolvedValue(mockRole);
     prisma.user.create.mockResolvedValue({
       id: 1,
-      email: `test-${uuid()}@example.com`,
+      email: `test@example.com`,
       password: 'hashedpassword',
     });
 
     const response = await request(app).post('/signup').send({
-      email: `test-${uuid()}@example.com`,
+      email: `test@example.com`,
       password: 'Valid1!',
     });
 
@@ -92,7 +91,7 @@ describe('POST /signup', () => {
     expect(response.body.message).toBe('User created');
     expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
-        email: expect.stringMatching(/test-.*@example.com/),
+        email: expect.stringMatching(/test@example.com/),
         password: expect.any(String),
         userRole: {
           create: {
