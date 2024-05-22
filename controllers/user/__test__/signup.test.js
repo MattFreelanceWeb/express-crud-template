@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 app.use(express.json());
 
-const { signup } = require('../signup.js'); // Remplace par le chemin correct vers ton contrôleur
+const { signup } = require('../signup.js');
 app.post('/signup', signup);
 
 jest.mock('@prisma/client', () => {
@@ -19,7 +19,7 @@ jest.mock('@prisma/client', () => {
     user: {
       create: jest.fn(),
     },
-    $disconnect: jest.fn().mockResolvedValue(), // Mock de $disconnect pour s'assurer qu'il se termine
+    $disconnect: jest.fn().mockResolvedValue(),
   };
   return { PrismaClient: jest.fn(() => mockPrismaClient) };
 });
