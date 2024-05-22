@@ -1,0 +1,86 @@
+import authMiddleware from '../middleware/auth';
+import jwt from 'jsonwebtoken';
+
+jest.mock('jsonwebtoken', () => ({
+  verify: jest.fn(),
+}));
+
+describe('Auth Middleware', () => {
+  let req, res, next;
+
+  beforeEach(() => {
+    req = {
+      headers: {
+        authorization: 'Bearer token',
+      },
+      body: {},
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    next = jest.fn();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should set req.auth with userId and userRole if token is valid', async () => {
+    const decodedToken = {
+      userId: '123',
+      role: 'admin',
+    };
+    jwt.verify.mockResolvedValue(decodedToken);
+
+    await authMiddleware(req, res, next);
+
+    expect(req.auth).toEqual({
+      userId: decodedToken.userId,
+      userRole: decodedToken.role,
+    });
+    expect(next).toHaveBeenCalled();
+  });
+
+  test('should throw an error if userId in request body does not match the decoded token', async () => {
+    const decodedToken = {
+      userId: '123',
+      role: 'admin',
+    };
+    jwt.verify.mockResolvedValue(decodedToken);
+
+    req.body.userId = '456';
+
+    await authMiddleware(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Bad User ID' });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('should throw an error if requiredRole in request body does not match the decoded token', async () => {
+    const decodedToken = {
+      userId: '123',
+      role: 'admin',
+    };
+    jwt.verify.mockResolvedValue(decodedToken);
+
+    req.body.requiredRole = 'user';
+
+    await authMiddleware(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Role unauthorized' });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('should throw an error if token is invalid', async () => {
+    jwt.verify.mockRejectedValue(new Error('Invalid token'));
+
+    await authMiddleware(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Request needs auth token' });
+    expect(next).not.toHaveBeenCalled();
+  });
+});

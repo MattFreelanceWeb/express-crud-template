@@ -1,0 +1,116 @@
+const { PrismaClient } = require("@prisma/client");
+const { update } = require("../controllers/comment/update.js");
+describe("update", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        id: "1",
+        commentId: "1",
+      },
+      auth: {
+        userId: 1,
+        userRole: 1,
+      },
+      body: {
+        content: "Updated comment",
+      },
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(async () => {
+    await prisma.$queryRaw("DELETE FROM Comment;");
+    await prisma.$queryRaw("DELETE FROM Role;");
+    await prisma.$disconnect();
+  });
+
+  test("should update comment when user is admin", async () => {
+    // Create admin role
+    const adminRole = await prisma.role.create({
+      data: {
+        content: "admin",
+      },
+    });
+
+    // Assign admin role to user
+    await prisma.user.update({
+      where: {
+        id: req.auth.userId,
+      },
+      data: {
+        roles: {
+          connect: {
+            id: adminRole.id,
+          },
+        },
+      },
+    });
+
+    // Create comment
+    const comment = await prisma.comment.create({
+      data: {
+        content: "Old comment",
+        userId: parseInt(req.params.id),
+      },
+    });
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Comment updated",
+      data: expect.objectContaining({
+        id: comment.id,
+        content: req.body.content,
+      }),
+    });
+  });
+
+  test("should update comment when user is the owner", async () => {
+    // Create comment
+    const comment = await prisma.comment.create({
+      data: {
+        content: "Old comment",
+        userId: parseInt(req.params.id),
+      },
+    });
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Comment updated",
+      data: expect.objectContaining({
+        id: comment.id,
+        content: req.body.content,
+      }),
+    });
+  });
+
+  test("should return unauthorized error when user is neither admin nor the owner", async () => {
+    req.auth.userId = 2; // Different user ID
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ error: "Unauthorized" });
+  });
+
+  test("should return error when an exception occurs", async () => {
+    jest.spyOn(prisma.comment, "update").mockRejectedValueOnce(new Error("Database error"));
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Error updating comment",
+      details: "Database error",
+    });
+  });
+})

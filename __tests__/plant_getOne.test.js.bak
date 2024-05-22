@@ -1,0 +1,53 @@
+const { PrismaClient } = require("@prisma/client");
+const { getOne } = require("../controllers/plant/getOne.js");
+describe("getOne", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        plantId: 1,
+      },
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(async () => {
+    await prisma.$disconnect();
+  });
+
+  it("should retrieve a plant and its associated data", async () => {
+    const expectedPlant = {
+      id: 1,
+      // Add other properties of the plant object here
+    };
+
+    prisma.plant.findUnique.mockResolvedValue(expectedPlant);
+
+    await getOne(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Plants retrieved",
+      data: expectedPlant,
+    });
+  });
+
+  it("should handle errors when retrieving plants", async () => {
+    const errorMessage = "Error retrieving plants";
+    const error = new Error(errorMessage);
+
+    prisma.plant.findUnique.mockRejectedValue(error);
+
+    await getOne(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: errorMessage,
+      details: error.message,
+    });
+  });
+});

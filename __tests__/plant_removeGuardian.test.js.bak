@@ -1,0 +1,126 @@
+const { PrismaClient } = require("@prisma/client");
+const { update } = require("../controllers/plant/getPlantsForGuardian.js");
+const prisma = new PrismaClient();
+describe("update", () => {
+  let req;
+  let res;
+
+  beforeEach(() => {
+    req = {
+      auth: {
+        userId: 1,
+        userRole: 1,
+      },
+      params: {
+        plantId: 1,
+      },
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(async () => {
+    await prisma.$queryRaw("DELETE FROM plant;");
+    await prisma.$queryRaw("DELETE FROM role;");
+    await prisma.$disconnect();
+  });
+
+  test("should return 404 if plant is not found", async () => {
+    prisma.plant.findUnique.mockResolvedValueOnce(null);
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "Plant not found" });
+  });
+
+  test("should return 400 if plant doesn't have a guardian", async () => {
+    prisma.plant.findUnique.mockResolvedValueOnce({
+      id: 1,
+      guardian: null,
+    });
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "plant doesn't have guardian" });
+  });
+
+  test("should update the plant's guardian if user is admin", async () => {
+    req.auth.userRole = 2; // Assuming admin role ID is 2
+
+    prisma.role.findUnique.mockResolvedValueOnce({ id: 2, content: "admin" });
+    prisma.plant.findUnique.mockResolvedValueOnce({
+      id: 1,
+      guardian: { id: 2 },
+    });
+    prisma.plant.update.mockResolvedValueOnce({
+      id: 1,
+      guardianId: null,
+      owner: { id: 1 },
+      guardian: null,
+      address: { id: 1 },
+      comment: { id: 1 },
+    });
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Gardian deleted",
+      data: {
+        id: 1,
+        guardianId: null,
+        owner: { id: 1 },
+        guardian: null,
+        address: { id: 1 },
+        comment: { id: 1 },
+      },
+    });
+  });
+
+  test("should update the plant's guardian if user is the guardian", async () => {
+    prisma.plant.findUnique.mockResolvedValueOnce({
+      id: 1,
+      guardian: { id: 1 },
+    });
+    prisma.plant.update.mockResolvedValueOnce({
+      id: 1,
+      guardianId: null,
+      owner: { id: 1 },
+      guardian: null,
+      address: { id: 1 },
+      comment: { id: 1 },
+    });
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Gardian deleted",
+      data: {
+        id: 1,
+        guardianId: null,
+        owner: { id: 1 },
+        guardian: null,
+        address: { id: 1 },
+        comment: { id: 1 },
+      },
+    });
+  });
+
+  test("should return 500 if an error occurs", async () => {
+    prisma.plant.findUnique.mockRejectedValueOnce(new Error("Database error"));
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Error guardian could not been deleted",
+      details: "Database error",
+    });
+  });
+});

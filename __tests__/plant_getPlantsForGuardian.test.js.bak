@@ -1,0 +1,66 @@
+const { PrismaClient } = require("@prisma/client");
+const { getAll } = require("../controllers/plant/getPlantsForGuardian.js");
+describe("getAll", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        userId: "1",
+        addressId: "1",
+      },
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return all plants for a specific user and address", async () => {
+    const expectedPlants = [
+      {
+        id: 1,
+        name: "Plant 1",
+        ownerId: 1,
+        addressId: 1,
+        owner: {
+          id: 1,
+          name: "User 1",
+        },
+        comment: {
+          id: 1,
+          content: "Comment 1",
+        },
+      },
+      // Add more expected plants here
+    ];
+
+    prisma.plant.findMany.mockResolvedValue(expectedPlants);
+
+    await getAll(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Plantes proposées à garder récupérées",
+      data: expectedPlants,
+    });
+  });
+
+  it("should handle errors and return 500 status code", async () => {
+    const errorMessage = "An error occurred";
+
+    prisma.plant.findMany.mockRejectedValue(new Error(errorMessage));
+
+    await getAll(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Erreur lors de la récupération des plantes proposées à garder",
+      details: errorMessage,
+    });
+  });
+});

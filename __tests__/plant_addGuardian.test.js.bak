@@ -1,0 +1,94 @@
+const { PrismaClient } = require("@prisma/client");
+const { update } = require("../controllers/plant/addGuardian.js");
+const prisma = new PrismaClient();
+describe("update", () => {
+  let req;
+  let res;
+
+  beforeEach(() => {
+    req = {
+      auth: {
+        userId: 1,
+        userRole: 1,
+      },
+      params: {
+        plantId: 1,
+      },
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(async () => {
+    await prisma.$queryRaw("DELETE FROM plant;");
+    await prisma.$queryRaw("DELETE FROM role;");
+    await prisma.$disconnect();
+  });
+
+  it("should update the plant's guardian", async () => {
+    // Create a plant without a guardian
+    const plant = await prisma.plant.create({
+      data: {
+        id: 1,
+        owner: {
+          connect: { id: 1 },
+        },
+      },
+    });
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Guardian added",
+      data: expect.objectContaining({
+        id: plant.id,
+        guardianId: req.auth.userId,
+      }),
+    });
+  });
+
+  it("should return an error if the plant is not found", async () => {
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "Plant not found" });
+  });
+
+  it("should return an error if the plant already has a guardian", async () => {
+    // Create a plant with a guardian
+    await prisma.plant.create({
+      data: {
+        id: 1,
+        owner: {
+          connect: { id: 1 },
+        },
+        guardian: {
+          connect: { id: 2 },
+        },
+      },
+    });
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Plant already has a guardian",
+    });
+  });
+
+  it("should return an error if there is an error adding the guardian", async () => {
+    jest.spyOn(prisma.plant, "update").mockRejectedValueOnce(new Error("Some error"));
+
+    await update(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Error adding guardian",
+      details: "Some error",
+    });
+  });
+});

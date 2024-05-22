@@ -1,0 +1,87 @@
+const { PrismaClient } = require("@prisma/client");
+const { create } = require("../controllers/plant/create.js");
+describe("create", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      auth: {
+        userId: 1,
+        userRole: 1,
+      },
+      params: {
+        id: "1",
+      },
+      body: {
+        common_name: "Test Plant",
+        scientific_name: "Test Scientific Name",
+        image_url: "https://example.com/image.jpg",
+        addressId: 1,
+      },
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(async () => {
+    await prisma.$queryRaw("DELETE FROM plant;");
+    await prisma.$queryRaw("DELETE FROM address;");
+    await prisma.$disconnect();
+  });
+
+  it("should create a new plant when user is admin", async () => {
+    req.auth.userRole = 1; // Assuming 1 is the role ID for admin
+
+    await create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Plante created",
+      data: expect.objectContaining({
+        common_name: "Test Plant",
+        scientific_name: "Test Scientific Name",
+        image_url: "https://example.com/image.jpg",
+      }),
+    });
+  });
+
+  it("should create a new plant when user is the owner", async () => {
+    req.auth.userRole = 2; // Assuming 2 is the role ID for non-admin user
+
+    await create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Plante created",
+      data: expect.objectContaining({
+        common_name: "Test Plant",
+        scientific_name: "Test Scientific Name",
+        image_url: "https://example.com/image.jpg",
+      }),
+    });
+  });
+
+  it("should return 401 error when user is neither admin nor owner", async () => {
+    req.auth.userRole = 3; // Assuming 3 is the role ID for other users
+
+    await create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ error: "Unauthorize" });
+  });
+
+  it("should return 500 error when an error occurs during plant creation", async () => {
+    jest.spyOn(prisma.plant, "create").mockRejectedValueOnce(new Error("Test Error"));
+
+    await create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Error creating plant",
+      details: "Test Error",
+    });
+  });
+});

@@ -1,0 +1,107 @@
+const { PrismaClient } = require("@prisma/client");
+const { getAll } = require("../controllers/plant/getAllFromCoordinates.js");
+describe("getAll", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        lat: "10.123",
+        lng: "20.456",
+      },
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(async () => {
+    await prisma.$disconnect();
+  });
+
+  it("should retrieve plants within the specified coordinates", async () => {
+    const plants = [
+      {
+        id: 1,
+        common_name: "Plant 1",
+        scientific_name: "Scientific 1",
+        image_url: "image1.jpg",
+        ownerId: 1,
+        guardianId: 1,
+        addressId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        common_name: "Plant 2",
+        scientific_name: "Scientific 2",
+        image_url: "image2.jpg",
+        ownerId: 2,
+        guardianId: 2,
+        addressId: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+
+    prisma.plant.findMany.mockResolvedValue(plants);
+
+    await getAll(req, res);
+
+    expect(prisma.plant.findMany).toHaveBeenCalledWith({
+      where: {
+        address: {
+          AND: [
+            { lat: { gte: 10.1221 } },
+            { lat: { lte: 10.1239 } },
+            { lng: { gte: 20.4551 } },
+            { lng: { lte: 20.4569 } },
+          ],
+        },
+      },
+      include: {
+        address: true,
+        owner: true,
+      },
+    });
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Plants retrieved",
+      data: [
+        {
+          userId: 1,
+          addressId: 1,
+          address: plants[0].address,
+          owner: plants[0].owner,
+          plants: [plants[0]],
+        },
+        {
+          userId: 2,
+          addressId: 2,
+          address: plants[1].address,
+          owner: plants[1].owner,
+          plants: [plants[1]],
+        },
+      ],
+    });
+  });
+
+  it("should handle errors when retrieving plants", async () => {
+    const errorMessage = "Error retrieving plants";
+    const error = new Error(errorMessage);
+
+    prisma.plant.findMany.mockRejectedValue(error);
+
+    await getAll(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: errorMessage,
+      details: error.message,
+    });
+  });
+});
+

@@ -1,0 +1,65 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
+const { login } = require('../login.js'); // Adjust this path as necessary
+
+jest.mock('bcryptjs');
+jest.mock('jsonwebtoken');
+jest.mock('@prisma/client', () => {
+    return {
+        PrismaClient: jest.fn().mockImplementation(() => {
+            return {
+                user: {
+                    findUnique: jest.fn()
+                },
+                $disconnect: jest.fn()
+            };
+        })
+    };
+});
+
+describe('Login Function Tests', () => {
+    let mockRequest, mockResponse;
+    beforeEach(() => {
+        mockRequest = {
+            body: {
+                email: 'test@example.com',
+                password: 'Password1!'
+            }
+        };
+        mockResponse = {
+            status: jest.fn(() => mockResponse),
+            json: jest.fn()
+        };
+        bcrypt.compareSync.mockReturnValue(true);
+        jwt.sign.mockReturnValue('token');
+    });
+
+    it('should return a token when credentials are valid', async () => {
+        const prisma = new PrismaClient();
+        prisma.user.findUnique.mockResolvedValue({
+            id: 1,
+            password: 'hashedpassword',
+            userRole: [{ roleId: 1 }]
+        });
+        await login(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.json).toHaveBeenCalledWith({ token: 'token' });
+    });
+
+    it('should return an error when credentials are invalid', async () => {
+        bcrypt.compareSync.mockReturnValue(false);
+        await login(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(401);
+        expect(mockResponse.json).toHaveBeenCalledWith({ error: "not allowed" });
+    });
+
+    it('should return an error when user is not found', async () => {
+        const prisma = new PrismaClient();
+        prisma.user.findUnique.mockResolvedValue(null);
+        await login(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(404);
+        expect(mockResponse.json).toHaveBeenCalledWith({ error: "user not found" });
+    });
+
+});

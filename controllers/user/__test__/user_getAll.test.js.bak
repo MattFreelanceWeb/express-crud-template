@@ -1,0 +1,59 @@
+const { PrismaClient } = require('@prisma/client');
+const { getAll } = require('../getAll.js'); // Adjust this path as necessary
+
+jest.mock('@prisma/client', () => {
+    return {
+        PrismaClient: jest.fn().mockImplementation(() => {
+            return {
+                user: {
+                    findMany: jest.fn()
+                },
+                $disconnect: jest.fn()
+            };
+        })
+    };
+});
+
+describe('GetAll Function Tests', () => {
+    let mockRequest, mockResponse;
+    beforeEach(() => {
+        mockRequest = {}; // As there are no specific parameters needed
+        mockResponse = {
+            status: jest.fn(() => mockResponse),
+            json: jest.fn()
+        };
+    });
+
+    it('should return all user details when users are found', async () => {
+        const prisma = new PrismaClient();
+        prisma.user.findMany.mockResolvedValue([
+            {
+                userName: 'TestUser1',
+                email: 'testuser1@example.com',
+                address: '123 Test St',
+                plantsOwned: [{ comment: 'Nice plant!' }],
+                plantsGuarded: [{ comment: 'Well guarded!' }]
+            },
+            {
+                userName: 'TestUser2',
+                email: 'testuser2@example.com',
+                address: '456 Test St',
+                plantsOwned: [{ comment: 'Lovely plant!' }],
+                plantsGuarded: [{ comment: 'Securely guarded!' }]
+            }
+        ]);
+        await getAll(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.json).toHaveBeenCalled();
+    });
+
+    it('should return an error when no users are found', async () => {
+        const prisma = new PrismaClient();
+        prisma.user.findMany.mockResolvedValue([]);
+        await getAll(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(404);
+        expect(mockResponse.json).toHaveBeenCalledWith({ error: "Users not found" });
+    });
+
+    // Add more tests as needed to cover different scenarios or error handling
+});

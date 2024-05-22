@@ -1,0 +1,53 @@
+const { PrismaClient } = require("@prisma/client");
+const { create } = require("../controllers/comment/create.js");
+describe("create", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        id: "1",
+        plantId: "2",
+      },
+      body: {
+        content: "Test comment",
+        byteImage: "test-image",
+      },
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(async () => {
+    await prisma.comment.deleteMany();
+    await prisma.$disconnect();
+  });
+
+  it("should create a new comment", async () => {
+    await create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Comment created",
+      data: expect.objectContaining({
+        content: "Test comment",
+        byteImage: "test-image",
+      }),
+    });
+  });
+
+  it("should handle errors when creating a comment", async () => {
+    jest.spyOn(prisma.comment, "create").mockRejectedValueOnce(new Error("Test error"));
+
+    await create(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Error creating comment",
+      details: "Test error",
+    });
+  });
+});
+ 

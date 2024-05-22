@@ -1,0 +1,58 @@
+const { PrismaClient } = require('@prisma/client');
+const { getOne } = require('../getOne.js'); // Adjust this path as necessary
+
+jest.mock('@prisma/client', () => {
+    return {
+        PrismaClient: jest.fn().mockImplementation(() => {
+            return {
+                user: {
+                    findUnique: jest.fn()
+                },
+                $disconnect: jest.fn()
+            };
+        })
+    };
+});
+
+describe('GetOne Function Tests', () => {
+    let mockRequest, mockResponse;
+    beforeEach(() => {
+        mockRequest = {
+            params: { id: '1' }
+        };
+        mockResponse = {
+            status: jest.fn(() => mockResponse),
+            json: jest.fn()
+        };
+    });
+
+    it('should return user details when user is found', async () => {
+        const prisma = new PrismaClient();
+        prisma.user.findUnique.mockResolvedValue({
+            userName: 'TestUser',
+            email: 'testuser@example.com',
+            address: '123 Test St',
+            plantsOwned: [],
+            plantsGuarded: []
+        });
+        await getOne(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.json).toHaveBeenCalledWith({
+            userName: 'TestUser',
+            email: 'testuser@example.com',
+            address: '123 Test St',
+            plantsOwned: [],
+            plantsGuarded: []
+        });
+    });
+
+    it('should return an error when user is not found', async () => {
+        const prisma = new PrismaClient();
+        prisma.user.findUnique.mockResolvedValue(null);
+        await getOne(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(404);
+        expect(mockResponse.json).toHaveBeenCalledWith({ error: "User not found" });
+    });
+
+    // Add more tests as needed to cover different scenarios or error handling
+});

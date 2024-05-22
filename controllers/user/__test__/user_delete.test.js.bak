@@ -1,0 +1,63 @@
+const { PrismaClient } = require('@prisma/client');
+const { delete: deleteUser } = require('../delete.js'); // Adjust this path as necessary
+
+jest.mock('@prisma/client', () => {
+    return {
+        PrismaClient: jest.fn().mockImplementation(() => {
+            return {
+                user: {
+                    delete: jest.fn()
+                },
+                role: {
+                    findUnique: jest.fn()
+                },
+                $disconnect: jest.fn()
+            };
+        })
+    };
+});
+
+describe('Delete User Function Tests', () => {
+    let mockRequest, mockResponse;
+    beforeEach(() => {
+        mockRequest = {
+            params: { id: '1' },
+            auth: { userId: 1, userRole: 1 } // Assume this is the admin's role ID or matches the user ID
+        };
+        mockResponse = {
+            status: jest.fn(() => mockResponse),
+            json: jest.fn()
+        };
+    });
+
+    it('should delete a user when authorized as admin', async () => {
+        const prisma = new PrismaClient();
+        prisma.role.findUnique.mockResolvedValue({ content: "admin" }); // Simulate admin authorization
+        prisma.user.delete.mockResolvedValue({ id: 1, name: "John Doe" }); // Simulate deletion
+
+        await deleteUser(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.json).toHaveBeenCalledWith({ message: "User deleted", data: { id: 1, name: "John Doe" } });
+    });
+
+    it('should return unauthorized error when not authorized', async () => {
+        const prisma = new PrismaClient();
+        prisma.role.findUnique.mockResolvedValue(null); // Simulate not admin and not matching user
+        mockRequest.auth.userId = 2; // Different user ID, not an admin
+
+        await deleteUser(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(403);
+        expect(mockResponse.json).toHaveBeenCalledWith({ error: "Unauthorized" });
+    });
+
+    it('should handle errors during deletion', async () => {
+        const prisma = new PrismaClient();
+        prisma.user.delete.mockRejectedValue(new Error("Internal Server Error"));
+
+        await deleteUser(mockRequest, mockResponse);
+        expect(mockResponse.status).toHaveBeenCalledWith(500);
+        expect(mockResponse.json).toHaveBeenCalledWith({ error: "Error on the delete of the user", details: "Internal Server Error" });
+    });
+
+    // Additional test cases as needed
+});

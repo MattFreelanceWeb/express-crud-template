@@ -1,0 +1,27 @@
+
+const request = require('supertest');
+const { PrismaClient } = require('@prisma/client');
+const app = require('../app');
+
+const prisma = new PrismaClient();
+
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
+describe('GET /plant', () => {
+  it('should return all plants', async () => {
+    const res = await request(app).get('/plant');
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          common_name: 'Plant 1',
+        }),
+        expect.objectContaining({
+          common_name: 'Plant 2',
+        }),
+      ])
+    );
+  });
+});

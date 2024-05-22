@@ -1,0 +1,104 @@
+const { PrismaClient } = require("@prisma/client");
+const { delete: deleteComment } = require("../controllers/comment/delete.js");
+const prisma = new PrismaClient();
+
+describe("delete", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        commentId: 1,
+      },
+      auth: {
+        userId: 1,
+        userRole: 1,
+      },
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  afterEach(async () => {
+    await prisma.$queryRaw("DELETE FROM comment;");
+  });
+
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
+  test("should delete comment when user is admin", async () => {
+    req.auth.userRole = 1; // Assuming role with id 1 is admin
+    const commentToDelet = await prisma.comment.create({
+      data: {
+        id: 1,
+        userId: 2,
+      },
+    });
+
+    await deleteComment(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Comment deleted",
+      data: commentToDelet,
+    });
+  });
+
+  test("should delete comment when user is the owner of the comment", async () => {
+    req.auth.userRole = 2; // Assuming role with id 2 is not admin
+    const commentToDelet = await prisma.comment.create({
+      data: {
+        id: 1,
+        userId: 1,
+      },
+    });
+
+    await deleteComment(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Comment deleted",
+      data: commentToDelet,
+    });
+  });
+
+  test("should return 403 error when user is neither admin nor the owner of the comment", async () => {
+    req.auth.userRole = 2; // Assuming role with id 2 is not admin
+    const commentToDelet = await prisma.comment.create({
+      data: {
+        id: 1,
+        userId: 2,
+      },
+    });
+
+    await deleteComment(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ error: "Unauthorized" });
+  });
+
+  test("should return 500 error when an error occurs during deletion", async () => {
+    req.auth.userRole = 1; // Assuming role with id 1 is admin
+    const commentToDelet = await prisma.comment.create({
+      data: {
+        id: 1,
+        userId: 2,
+      },
+    });
+
+    // Mocking an error during deletion
+    prisma.comment.delete = jest.fn().mockRejectedValue(new Error("Deletion error"));
+
+    await deleteComment(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Error deleting comment",
+      details: "Deletion error",
+    });
+  });
+});
