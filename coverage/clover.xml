@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1716386263246" clover="3.2.0">
-  <project timestamp="1716386263246" name="All files">
+<coverage generated="1716386331463" clover="3.2.0">
+  <project timestamp="1716386331464" name="All files">
     <metrics statements="1510" coveredstatements="818" conditionals="1464" coveredconditionals="949" methods="670" coveredmethods="413" elements="3644" coveredelements="2180" complexity="0" loc="1510" ncloc="1510" packages="7" files="28" classes="28"/>
     <package name="express-crud-template">
       <metrics statements="137" coveredstatements="0" conditionals="3" coveredconditionals="0" methods="3" coveredmethods="0"/>
