@@ -2,7 +2,7 @@ const express = require("express");
 const helmet = require("helmet");
 const app = express();
 const path = require("path");
-const seeder = require('./middleware/seeder')
+// const seeder = require('./middleware/seeder')
 require("dotenv").config();
 
 const userRoute = require("./routes/user");
@@ -12,11 +12,6 @@ const commentRoute = require("./routes/comment")
 
 const { swaggerUi, swaggerSpec } = require('./swagger');
 
-export function GET(request) {
-  let usersPath = path.join(process.cwd(), './prisma/schema.prisma');
-  let file = fs.readFileSync(usersPath);
-  return new Response(file);
-}
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -31,13 +26,13 @@ app.use((req, res, next) => {
   next();
 });
 
-const launchSeeder = async () => {
-  await seeder.seeder()
-  await seeder.testUserSeeder()
-  await seeder.HeptestUserSeeder()
-}
+// const launchSeeder = async () => {
+//   await seeder.seeder()
+//   await seeder.testUserSeeder()
+//   await seeder.HeptestUserSeeder()
+// }
 
-launchSeeder()
+// launchSeeder()
 
 app.use(express.json());
 
