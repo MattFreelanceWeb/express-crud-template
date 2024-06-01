@@ -2,13 +2,15 @@ const express = require("express");
 const helmet = require("helmet");
 const app = express();
 const path = require("path");
-// const seeder = require('./middleware/seeder')
 require("dotenv").config();
+
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css"
 
 const userRoute = require("./routes/user");
 const addressRoute = require("./routes/address")
 const plantRoute = require("./routes/plant")
 const commentRoute = require("./routes/comment")
+const healthRoute = require("./routes/health")
 
 const { swaggerUi, swaggerSpec } = require('./swagger');
 
@@ -26,18 +28,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// const launchSeeder = async () => {
-//   await seeder.seeder()
-//   await seeder.testUserSeeder()
-//   await seeder.HeptestUserSeeder()
-// }
-
-// launchSeeder()
+app.use(helmet())
 
 app.use(express.json());
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss:
+      '.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
+  customCssUrl: CSS_URL,
+}));
 
+app.use("/api/health", healthRoute)
 app.use("/api/user", userRoute);
 app.use("/api/address", addressRoute)
 app.use("/api/plant", plantRoute)
