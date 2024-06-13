@@ -6,13 +6,14 @@ require("dotenv").config();
 
 const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css"
 
+const { swaggerUi, swaggerSpec } = require('./swagger');
+
 const userRoute = require("./routes/user");
 const addressRoute = require("./routes/address")
 const plantRoute = require("./routes/plant")
 const commentRoute = require("./routes/comment")
 const healthRoute = require("./routes/health")
 
-const { swaggerUi, swaggerSpec } = require('./swagger');
 
 
 app.use((req, res, next) => {
