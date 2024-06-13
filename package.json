@@ -7,6 +7,8 @@
     "dev": " nodemon server",
     "db--reset": " npx prisma migrate reset",
     "db--migrate": "npx prisma migrate dev",
+    "seed": "node middleware/seeder.js",
+    "seedHep": "node middleware/seedTenUserNearHep.js",
     "test": "jest",
     "prepare": "husky",
     "postinstall": "prisma generate"

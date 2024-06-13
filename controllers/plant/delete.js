@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.delete = async (req, res) => {
-  console.log("delete plant route", req)
+  console.log("delete plant route", req);
   const userIdFromToken = req.auth.userId;
   const plantId = parseInt(req.params.id);
 
@@ -20,11 +20,15 @@ exports.delete = async (req, res) => {
     plantToDelete = await prisma.plant.findUnique({
       where: { id: plantId },
       include: {
-        user: true,
+        owner: true, // Utilisation de la relation correcte 'owner'
       },
     });
 
-    const userWhoOwnsPlant = plantToDelete.user.id;
+    if (!plantToDelete) {
+      return res.status(404).json({ error: "Plant not found" });
+    }
+
+    const userWhoOwnsPlant = plantToDelete.owner.id;
 
     if (isAdmin || userIdFromToken === userWhoOwnsPlant) {
       await prisma.plant.delete({

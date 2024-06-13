@@ -29,7 +29,7 @@ const options = {
         },
       ],
     },
-    apis: ['./docs/*.js'], // Assurez-vous que ce chemin est correct
+    apis: ['./docs/*.js'],
   };
   
 

@@ -51,6 +51,7 @@ async function seeder() {
     await prisma.$disconnect();
   }
 }
+seeder()
 
 
 async function testUserSeeder() {
@@ -117,6 +118,7 @@ async function testUserSeeder() {
     await prisma.$disconnect();
   }
 }
+testUserSeeder()
 
 async function HeptestUserSeeder() {
   let salt = bcrypt.genSaltSync(10);
@@ -213,6 +215,8 @@ async function HeptestUserSeeder() {
     await prisma.$disconnect();
   }
 }
+
+HeptestUserSeeder()
 
 
 module.exports = { seeder, testUserSeeder, HeptestUserSeeder}

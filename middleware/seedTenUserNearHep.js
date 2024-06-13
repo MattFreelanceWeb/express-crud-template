@@ -1,3 +1,6 @@
+const bcrypt = require("bcryptjs");
+
+
 async function HeptestUserSeeder() {
     let salt = bcrypt.genSaltSync(10);
   
@@ -93,4 +96,6 @@ async function HeptestUserSeeder() {
       await prisma.$disconnect();
     }
   }
+
+  HeptestUserSeeder()
   
