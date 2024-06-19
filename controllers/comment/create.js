@@ -2,26 +2,32 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.create = async (req, res) => {
-  console.log("create comment route", req)
+  console.log("create comment route", req);
   try {
     const userId = parseInt(req.params.id);
     const plantId = parseInt(req.params.plantId);
 
-    const newComment = await prisma.comment.create({
-      data: {
-        content: req.body.content,
-        byteImage: req.body.byteImage,
-        Plant: {
-          connect: {
-            id: plantId,
-          },
+    const commentData = {
+      content: req.body.content,
+      Plant: {
+        connect: {
+          id: plantId,
         },
-        User: {
-          connect: {
-            id: userId
-          }
-        }
       },
+      User: {
+        connect: {
+          id: userId,
+        },
+      },
+    };
+
+    // Vérification et ajout de byteImage si présent
+    if (req.body.byteImage) {
+      commentData.byteImage = req.body.byteImage;
+    }
+
+    const newComment = await prisma.comment.create({
+      data: commentData,
     });
 
     res.status(201).json({ message: "Comment created", data: newComment });
@@ -37,5 +43,3 @@ exports.create = async (req, res) => {
     await prisma.$disconnect();
   }
 };
-
- 

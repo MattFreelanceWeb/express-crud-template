@@ -83,7 +83,7 @@ model Address {
 model Comment {
   id        Int      @id @default(autoincrement())
   content   String
-  byteImage String
+  byteImage String?
   plantId   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
