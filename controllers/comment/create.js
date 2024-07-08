@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.create = async (req, res) => {
-  console.log("create comment route", req);
+  console.log("create comment route", req.body);
   try {
     const userId = parseInt(req.params.id);
     const plantId = parseInt(req.params.plantId);
@@ -21,10 +21,13 @@ exports.create = async (req, res) => {
       },
     };
 
-    // Vérification et ajout de byteImage si présent
-    if (req.body.byteImage) {
+    // Vérification et ajout de byteImage si présent et valide
+    if (req.body.byteImage && typeof req.body.byteImage === 'string') {
       commentData.byteImage = req.body.byteImage;
     }
+
+    // Debug logs
+    console.log("Comment Data:", commentData);
 
     const newComment = await prisma.comment.create({
       data: commentData,
